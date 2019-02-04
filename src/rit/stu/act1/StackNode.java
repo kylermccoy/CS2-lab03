@@ -27,12 +27,9 @@ public class StackNode<T> implements Stack<T> {
 
     @Override
     public T pop() {
-        if (this.size == 0) {
-            throw new java.lang.Error("Pop on empty stack!") ;
-        }
+        assert !this.empty() ;
         T popped = this.top.getData() ;
-        this.top.setData(this.top.getNext().getData()) ;
-        this.top.setNext(this.top.getNext().getNext()) ;
+        this.top = this.top.getNext() ;
         this.size-- ;
         return popped ;
     }
@@ -45,6 +42,7 @@ public class StackNode<T> implements Stack<T> {
 
     @Override
     public T top() {
+        assert !this.empty() ;
         return this.top.getData() ;
     }
 }
