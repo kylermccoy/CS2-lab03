@@ -20,11 +20,19 @@ public class StackNode<T> implements Stack<T> {
         this.top = null ;
     }
 
+    /**
+     * check if the stack is currently empty or not
+     * @return true if empty, false otherwise
+     */
     @Override
     public boolean empty() {
         return size == 0 ;
     }
 
+    /**
+     * remove and return the top element in the stack
+     * @return the front element
+     */
     @Override
     public T pop() {
         assert !this.empty() ;
@@ -34,12 +42,20 @@ public class StackNode<T> implements Stack<T> {
         return popped ;
     }
 
+    /**
+     * add a new element to the top of the stack
+     * @param element The new data element
+     */
     @Override
     public void push(T element) {
         this.top = new Node<T>(element, this.top) ;
         this.size++ ;
     }
 
+    /**
+     * get the top element of the stack
+     * @return the top element
+     */
     @Override
     public T top() {
         assert !this.empty() ;

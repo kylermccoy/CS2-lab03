@@ -8,7 +8,7 @@ import java.util.Random;
  * $ java Battlefield #_hostages #_soldiers #_guerillas
  *
  * @author Sean Strout @ RIT CS
- * @author YOUR NAME HERE
+ * @author Kyle McCoy   krm7269@rit.edu
  */
 public class Battlefield {
     /** the single instance of the random number generator */
@@ -19,6 +19,10 @@ public class Battlefield {
 
 
     // TODO: ADD THE REMAINING STATE HERE
+    private Bunker bunker ;
+    private Chopper chopper ;
+    private EnemyBase enemyBase ;
+    private Predator predator ;
 
 
     /**
@@ -48,6 +52,10 @@ public class Battlefield {
         this.rng.setSeed(SEED);
 
         //TODO: Initialize the other classes here
+        this.bunker = new Bunker(numSoldiers) ;
+        this.chopper = new Chopper() ;
+        this.enemyBase = new EnemyBase(numHostages, numGuerillas) ;
+        this.predator = new Predator() ;
 
     }
 
@@ -61,6 +69,11 @@ public class Battlefield {
     private void printStatistics() {
 
         // TODO
+        System.out.println("Statistics: "
+                + this.enemyBase.getNumHostages() + " hostage/s remain, "
+                + this.bunker.getNumSoldiers() + " soldier/s remain, "
+                + this.enemyBase.getNumGuerillas() + " guerilla/s remain, "
+                + this.chopper.getNumRescued() + " rescued.") ;
 
     }
 
@@ -119,7 +132,49 @@ public class Battlefield {
     private void battle() {
 
         //TODO
-
+        System.out.println("Get to the choppa!") ;
+        while ((this.bunker.hasSoldiers()) && (this.enemyBase.getNumHostages() > 0)) {
+            printStatistics() ;
+            Soldier man = this.bunker.deployNextSoldier() ;
+            Hostage rescuee = this.enemyBase.rescueHostage(man) ;
+            if (rescuee == null) {
+                continue ;
+            }else{
+                System.out.println(rescuee.toString() + " rescued from enemy base by soldier " + man.toString() + ".") ;
+                int rand = nextInt(1, 100) ;
+                System.out.println(man.toString() + " encounters the predator who rolls a " + rand + ".") ;
+                if (rand > this.predator.CHANCE_TO_BEAT_SOLDIER) {
+                    man.victory(this.predator) ;
+                    this.predator.defeat(man) ;
+                    this.bunker.fortifySoldiers(man) ;
+                    this.chopper.boardPassenger(rescuee) ;
+                    continue ;
+                }else{
+                    this.predator.victory(man) ;
+                    man.defeat(this.predator) ;
+                    rand = nextInt(1, 100) ;
+                    System.out.println(rescuee.toString() + " encounters the predator who rolls a " + rand + ".") ;
+                    if (rand <= this.predator.CHANCE_TO_BEAT_HOSTAGE) {
+                        this.predator.victory(rescuee) ;
+                        rescuee.defeat(this.predator) ;
+                        continue ;
+                    }else{
+                        rescuee.victory(this.predator) ;
+                        this.predator.defeat(rescuee) ;
+                        this.chopper.boardPassenger(rescuee) ;
+                        continue ;
+                    }
+                }
+            }
+        }
+        while (this.bunker.hasSoldiers()) {
+            Soldier man = this.bunker.deployNextSoldier() ;
+            this.chopper.boardPassenger(man) ;
+        }
+        if (!this.chopper.isEmpty()) {
+            this.chopper.rescuePassengers() ;
+        }
+        printStatistics() ;
     }
 
     /**
